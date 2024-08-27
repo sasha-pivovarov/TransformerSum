@@ -11,7 +11,7 @@ from multiprocessing import Pool
 import numpy as np
 import torch
 
-from helpers import pad
+from .helpers import pad
 
 logger = logging.getLogger(__name__)
 

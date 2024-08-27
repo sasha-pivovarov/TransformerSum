@@ -19,14 +19,14 @@ from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 from transformers.data.metrics import acc_and_f1
 
-from classifier import (
+from .classifier import (
     LinearClassifier,
     SimpleLinearClassifier,
     TransformerEncoderClassifier,
 )
-from data import FSDataset, FSIterableDataset, SentencesProcessor, pad_batch_collate
-from helpers import block_trigrams, generic_configure_optimizers, load_json, test_rouge
-from pooling import Pooling
+from .data import FSDataset, FSIterableDataset, SentencesProcessor, pad_batch_collate
+from .helpers import block_trigrams, generic_configure_optimizers, load_json, test_rouge
+from .pooling import Pooling
 
 logger = logging.getLogger(__name__)
 

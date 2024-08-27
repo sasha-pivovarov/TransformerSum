@@ -12,9 +12,9 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.plugins import DeepSpeedPlugin
 
 import datasets as nlp
-from abstractive import AbstractiveSummarizer
-from extractive import ExtractiveSummarizer
-from helpers import StepCheckpointCallback
+from .abstractive import AbstractiveSummarizer
+from .extractive import ExtractiveSummarizer
+from .helpers import StepCheckpointCallback
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def set_seed(seed):
     )
 
 
-def main(args):
+def _main_impl(args):
     if args.seed:
         set_seed(args.seed)
 
@@ -138,8 +138,7 @@ def main(args):
     if args.do_test:
         trainer.test(model)
 
-
-if __name__ == "__main__":
+def main():
     parser = ArgumentParser(add_help=False)
 
     # parametrize the network: general options
@@ -159,12 +158,12 @@ if __name__ == "__main__":
         "--weights_save_path",
         type=str,
         help="""Where to save weights if specified. Will override `--default_root_dir` for
-        checkpoints only. Use this if for whatever reason you need the checkpoints stored in
-        a different place than the logs written in `--default_root_dir`.
-        If you are using the `wandb` logger, then you must also set `--no_wandb_logger_log_model`
-        when using this option. Model weights are saved with the wandb logs to be uploaded to
-        wandb.ai by default. Setting this option without setting `--no_wandb_logger_log_model`
-        effectively creates two save paths, which may crash the script.""",
+            checkpoints only. Use this if for whatever reason you need the checkpoints stored in
+            a different place than the logs written in `--default_root_dir`.
+            If you are using the `wandb` logger, then you must also set `--no_wandb_logger_log_model`
+            when using this option. Model weights are saved with the wandb logs to be uploaded to
+            wandb.ai by default. Setting this option without setting `--no_wandb_logger_log_model`
+            effectively creates two save paths, which may crash the script.""",
     )
     parser.add_argument(
         "--learning_rate",
@@ -201,7 +200,7 @@ if __name__ == "__main__":
         default=1,
         type=int,
         help="""Accumulates grads every k batches. A single step is one gradient accumulation cycle,
-        so setting this value to 2 will cause 2 batches to be processed for each step.""",
+            so setting this value to 2 will cause 2 batches to be processed for each step.""",
     )
     parser.add_argument(
         "--check_val_every_n_epoch",
@@ -223,7 +222,7 @@ if __name__ == "__main__":
         default=0.0,
         type=float,
         help="Uses this much data of all datasets (training, validation, test). Useful "
-        + "for quickly debugging or trying to overfit on purpose.",
+             + "for quickly debugging or trying to overfit on purpose.",
     )
     parser.add_argument(
         "--fast_dev_run",
@@ -235,14 +234,14 @@ if __name__ == "__main__":
         default=1.0,
         type=float,
         help="How much of training dataset to check. Useful when debugging or testing "
-        + "something that happens at the end of an epoch.",
+             + "something that happens at the end of an epoch.",
     )
     parser.add_argument(
         "--limit_val_batches",
         default=1.0,
         type=float,
         help="How much of validation dataset to check. Useful when debugging or testing something "
-        + "that happens at the end of an epoch.",
+             + "that happens at the end of an epoch.",
     )
     parser.add_argument(
         "--limit_test_batches",
@@ -255,7 +254,7 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="The optimization level to use (O1, O2, etc…) for 16-bit GPU precision (using "
-        + "NVIDIA apex under the hood).",
+             + "NVIDIA apex under the hood).",
     )
     parser.add_argument(
         "--amp_backend",
@@ -288,23 +287,23 @@ if __name__ == "__main__":
         default=50,
         type=int,
         help="How often to refresh progress bar (in steps). In notebooks, faster refresh rates "
-        + "(lower number) is known to crash them because of their screen refresh rates, so raise "
-        + "it to 50 or more.",
+             + "(lower number) is known to crash them because of their screen refresh rates, so raise "
+             + "it to 50 or more.",
     )
     parser.add_argument(
         "--num_sanity_val_steps",
         default=2,
         type=int,
         help="Sanity check runs n batches of val before starting the training routine. This "
-        + "catches any bugs in your validation without having to wait for the first "
-        + "validation check.",
+             + "catches any bugs in your validation without having to wait for the first "
+             + "validation check.",
     )
     parser.add_argument(
         "--val_check_interval",
         default=1.0,
         help="How often within one training epoch to check the validation set. Can specify "
-        + "as float or int. Use float to check within a training epoch. Use int to check every "
-        + "n steps (batches).",
+             + "as float or int. Use float to check within a training epoch. Use int to check every "
+             + "n steps (batches).",
     )
     parser.add_argument(
         "--use_logger",
@@ -312,7 +311,7 @@ if __name__ == "__main__":
         type=str,
         choices=["tensorboard", "wandb"],
         help="Which program to use for logging. If `wandb` is chosen then model weights "
-        + "will automatically be uploaded to wandb.ai.",
+             + "will automatically be uploaded to wandb.ai.",
     )
     parser.add_argument(
         "--wandb_project",
@@ -324,8 +323,8 @@ if __name__ == "__main__":
         "--gradient_checkpointing",
         action="store_true",
         help="Enable gradient checkpointing (save memory at the expense of a slower backward "
-        + "pass) for the word embedding model. "
-        + "More info: https://github.com/huggingface/transformers/pull/4659#issue-424841871",
+             + "pass) for the word embedding model. "
+             + "More info: https://github.com/huggingface/transformers/pull/4659#issue-424841871",
     )
     parser.add_argument(
         "--accelerator",
@@ -345,8 +344,8 @@ if __name__ == "__main__":
         default=False,
         type=str,
         help="""Loads the model weights from a given checkpoint. Hyperparameters are initialized
-        from command line arguments. This can be used to change paramters between the training
-        and testing stages, for example.""",
+            from command line arguments. This can be used to change paramters between the training
+            and testing stages, for example.""",
     )
     parser.add_argument(
         "--load_from_checkpoint",
@@ -359,49 +358,49 @@ if __name__ == "__main__":
         default=None,
         type=str,
         help="To resume training from a specific checkpoint pass in the path here. Automatically "
-        + "restores model, epoch, step, LR schedulers, apex, etc...",
+             + "restores model, epoch, step, LR schedulers, apex, etc...",
     )
     parser.add_argument(
         "--use_custom_checkpoint_callback",
         action="store_true",
-        help="""Use the custom checkpointing callback specified in `main()` by
-        `args.checkpoint_callback`. By default this custom callback saves the model every
-        epoch and never deletes the saved weights files. You can change the save path by
-        setting the `--weights_save_path` option.""",
+        help="""Use the custom checkpointing callback specified in `_main_impl()` by
+            `args.checkpoint_callback`. By default this custom callback saves the model every
+            epoch and never deletes the saved weights files. You can change the save path by
+            setting the `--weights_save_path` option.""",
     )
     parser.add_argument(
         "--custom_checkpoint_every_n",
         type=int,
         default=None,
         help="""The number of steps between additional checkpoints. By default checkpoints are
-        saved every epoch. Setting this value will save them every epoch and every N steps. This
-        does not use the same callback as `--use_custom_checkpoint_callback` but instead uses a
-        different class called `StepCheckpointCallback`. When using this callback, you must specify
-        the save path with the `--weights_save_path` option.""",
+            saved every epoch. Setting this value will save them every epoch and every N steps. This
+            does not use the same callback as `--use_custom_checkpoint_callback` but instead uses a
+            different class called `StepCheckpointCallback`. When using this callback, you must specify
+            the save path with the `--weights_save_path` option.""",
     )
     parser.add_argument(
         "--no_wandb_logger_log_model",
         action="store_true",
         help="Only applies when using the `wandb` logger. Set this argument to NOT save "
-        + "checkpoints in wandb directory to upload to W&B servers.",
+             + "checkpoints in wandb directory to upload to W&B servers.",
     )
     parser.add_argument(
         "--auto_scale_batch_size",
         default=None,
         type=str,
         help="""Auto scaling of batch size may be enabled to find the largest batch size that fits
-        into memory. Larger batch size often yields better estimates of gradients, but may also
-        result in longer training time. Currently, this feature supports two modes 'power' scaling
-        and 'binsearch' scaling. In 'power' scaling, starting from a batch size of 1 keeps doubling
-        the batch size until an out-of-memory (OOM) error is encountered. Setting the argument to
-        'binsearch' continues to finetune the batch size by performing a binary search. 'binsearch'
-        is the recommended option.""",
+            into memory. Larger batch size often yields better estimates of gradients, but may also
+            result in longer training time. Currently, this feature supports two modes 'power' scaling
+            and 'binsearch' scaling. In 'power' scaling, starting from a batch size of 1 keeps doubling
+            the batch size until an out-of-memory (OOM) error is encountered. Setting the argument to
+            'binsearch' continues to finetune the batch size by performing a binary search. 'binsearch'
+            is the recommended option.""",
     )
     parser.add_argument(
         "--lr_find",
         action="store_true",
         help="Runs a learning rate finder algorithm (see https://arxiv.org/abs/1506.01186) "
-        + "before any training, to find optimal initial learning rate.",
+             + "before any training, to find optimal initial learning rate.",
     )
     parser.add_argument(
         "--adam_epsilon",
@@ -414,16 +413,16 @@ if __name__ == "__main__":
         type=str,
         default="adam",
         help="""Which optimizer to use: `adamw` (default), `ranger`, `qhadam`, `radam`, or
-        `adabound`.""",
+            `adabound`.""",
     )
     parser.add_argument(
         "--ranger-k",
         default=6,
         type=int,
         help="""Ranger (LookAhead) optimizer k value (default: 6). LookAhead keeps a single
-        extra copy of the weights, then lets the internalized 'faster' optimizer (for Ranger,
-        that's RAdam) explore for 5 or 6 batches. The batch interval is specified via the
-        k parameter.""",
+            extra copy of the weights, then lets the internalized 'faster' optimizer (for Ranger,
+            that's RAdam) explore for 5 or 6 batches. The batch interval is specified via the
+            k parameter.""",
     )
     parser.add_argument(
         "--warmup_steps",
@@ -435,16 +434,16 @@ if __name__ == "__main__":
         "--no_strict",
         action="store_false",
         help="Load a model with `strict` mode disabled. This will *not* enforce that the keys "
-        + "in `state_dict` match the keys returned by the module's `state_dict()` function.",
+             + "in `state_dict` match the keys returned by the module's `state_dict()` function.",
     )
     parser.add_argument(
         "--use_scheduler",
         default=False,
         help="""Three options:
-        1. `linear`: Use a linear schedule that inceases linearly over `--warmup_steps` to `--learning_rate` then decreases linearly for the rest of the training process.
-        2. `onecycle`: Use the one cycle policy with a maximum learning rate of `--learning_rate`.
-        (default: False, don't use any scheduler)
-        3. `poly`: polynomial learning rate decay from `--learning_rate` to `--end_learning_rate`""",  # noqa: E501
+            1. `linear`: Use a linear schedule that inceases linearly over `--warmup_steps` to `--learning_rate` then decreases linearly for the rest of the training process.
+            2. `onecycle`: Use the one cycle policy with a maximum learning rate of `--learning_rate`.
+            (default: False, don't use any scheduler)
+            3. `poly`: polynomial learning rate decay from `--learning_rate` to `--end_learning_rate`""",  # noqa: E501
     )
     parser.add_argument(
         "--end_learning_rate",
@@ -458,7 +457,7 @@ if __name__ == "__main__":
         default=None,
         type=str,
         help="Allows you to connect arbitrary backends. Run `pip install deepspeed mpi4py` to use"
-        + "deepspeed plugin.",
+             + "deepspeed plugin.",
     )
     parser.add_argument(
         "-l",
@@ -482,9 +481,9 @@ if __name__ == "__main__":
         )
 
     if (
-        main_args[0].plugins
-        and main_args[0].plugins.startswith("deepspeed")
-        and (":" not in main_args[0].plugins)
+            main_args[0].plugins
+            and main_args[0].plugins.startswith("deepspeed")
+            and (":" not in main_args[0].plugins)
     ):
         logger.error(
             "If you are using the 'deepspeed' plugin, you must specify the path the to "
@@ -506,4 +505,7 @@ if __name__ == "__main__":
     nlp.logging.set_verbosity(nlp.logging.WARNING)
 
     # Train
-    main(main_args)
+    _main_impl(main_args)
+
+if __name__ == "__main__":
+    main()

@@ -20,8 +20,8 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, EncoderDecoderModel
 
 import datasets as nlp
-from convert_to_extractive import tokenize
-from helpers import (
+from .convert_to_extractive import tokenize
+from .helpers import (
     LabelSmoothingLoss,
     SortishSampler,
     generic_configure_optimizers,

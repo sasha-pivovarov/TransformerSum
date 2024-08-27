@@ -18,7 +18,7 @@ from spacy.lang.en import English
 from tqdm import tqdm
 
 import datasets as hf_nlp
-from helpers import _get_word_ngrams, load_json
+from .helpers import _get_word_ngrams, load_json
 
 logger = logging.getLogger(__name__)
 
